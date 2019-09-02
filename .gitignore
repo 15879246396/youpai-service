@@ -69,3 +69,4 @@ celerybeat-schedule
 /.vscode
 
 logs/
+venv/
