@@ -1,28 +1,32 @@
 # -*- coding: utf-8 -*-
 from rest_framework import serializers
 
-from commodity.models import Commodity
+from commodity.models import Commodity, FreightTemplate
 
 
-class CommoditySerializer(serializers.ModelSerializer):
+class FreightTemplateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = FreightTemplate
+        fields = ['id', 'name', 'freight', 'charge_type', 'amount', 'piece']
+
+
+class CommodityListSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Commodity
+        fields = ['id', 'name', 'ori_price', 'price', 'brief', 'pic', ]
+
+
+class CommoditySerializer(CommodityListSerializer):
     images = serializers.SerializerMethodField()
-    freight_template = serializers.SerializerMethodField()
+    freight_template = FreightTemplateSerializer(allow_null=True, required=False)
 
     def get_images(self, obj):
         if obj.images:
             return eval(obj.images)
 
-    def get_freight_template(self, obj):
-        if obj.freight_template:
-            freight_template = {
-                'freight': obj.freight_template.freight,
-                'charge_type': obj.freight_template.charge_type,
-                'amount': obj.freight_template.amount,
-                'piece': obj.freight_template.piece,
-            }
-            return freight_template
-
     class Meta:
         model = Commodity
-        fields = ['id', 'name', 'ori_price', 'price', 'is_free_fee', 'brief', 'content', 'pic', 'images', 'sold_num',
-                  'total_stocks', 'freight_template']
+        fields = CommodityListSerializer.Meta.fields + ['is_free_fee', 'content', 'images', 'sold_num', 'total_stocks',
+                                                        'freight_template']
