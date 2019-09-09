@@ -5,7 +5,12 @@ from commodity.models import Commodity
 
 
 class CommoditySerializer(serializers.ModelSerializer):
+    images = serializers.SerializerMethodField()
     freight_template = serializers.SerializerMethodField()
+
+    def get_images(self, obj):
+        if obj.images:
+            return eval(obj.images)
 
     def get_freight_template(self, obj):
         if obj.freight_template:

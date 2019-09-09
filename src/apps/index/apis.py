@@ -36,6 +36,7 @@ def index_commodity(request):
         commodities = Commodity.objects.filter(delete_status=0, commodity_tag=tag)[:prod_count]
         data = {
             "id": tag.id,
+            "title": tag.title,
             "style": tag.id,
             "commodity_list": CommoditySerializer(commodities, many=True).data
         }
