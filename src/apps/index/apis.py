@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from commodity.models import Commodity
+from commodity.serializers import CommoditySerializer
 from common.decorator import common_api
 from index.models import IndexImg, Notice, CommodityTag
 from index.serializers import IndexImgSerializer, NoticeSerializer
@@ -32,11 +33,12 @@ def index_commodity(request):
     data_list = []
     for tag in tags:
         prod_count = tag.prod_count
-        commodutys = Commodity.objects.filter(delete_status=0, commodity_tag=tag).limit(prod_count)
+        commodities = Commodity.objects.filter(delete_status=0, commodity_tag=tag)[:prod_count]
         data = {
             "id": tag.id,
             "style": tag.id,
+            "commodity_list": CommoditySerializer(commodities, many=True).data
         }
         data_list.append(data)
 
-    return Response(tags)
+    return Response(data_list)
