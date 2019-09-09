@@ -37,6 +37,8 @@ class Notice(GmtCreateModifiedTimeMixin, DeleteStatusMixin):
     is_top = models.BooleanField(verbose_name="是否置顶", default=False)
     status = models.BooleanField(verbose_name="是否公布", default=True)
 
+    objects = models.Manager()
+
 
 class CommodityTag(GmtCreateModifiedTimeMixin, DeleteStatusMixin):
     """首页分组标签"""
@@ -45,3 +47,4 @@ class CommodityTag(GmtCreateModifiedTimeMixin, DeleteStatusMixin):
     style = models.IntegerField(verbose_name="列表样式", choices=CommodityTagStyle, default=1)
     seq = models.IntegerField(verbose_name="排序", default=0)
 
+    objects = models.Manager()

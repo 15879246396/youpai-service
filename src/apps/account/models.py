@@ -12,6 +12,7 @@ SEX = (
     (2, "男"),
 )
 
+
 class MyUserManager(BaseUserManager):
     def create_user(self, phone, name, password=None):
         """

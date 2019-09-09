@@ -7,4 +7,6 @@ from . import apis
 
 urlpatterns = [
     path('indexImg/', apis.index_img, name='indexImg'),
+    path('notice/', apis.IndexNoticeView.as_view(), name='notice'),
+    path('list/', apis.index_commodity, name='indexList'),
 ]

@@ -1,4 +1,6 @@
 # coding=utf-8
+import datetime
+
 import requests
 from django.conf import settings
 from rest_framework.authentication import SessionAuthentication
@@ -55,6 +57,7 @@ class WechatLoginView(APIView):
             }
         )
 
+        user.last_login = datetime.datetime.today()
         if _created:
             # 首次授权登陆，注册，记录登陆ip
             user.set_password(openid)
