@@ -15,7 +15,7 @@ class CommodityListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Commodity
-        fields = ['id', 'name', 'ori_price', 'price', 'brief', 'pic', ]
+        fields = ['id', 'name', 'ori_price', 'price', 'brief', 'pic', 'sold_num']
 
 
 class CommoditySerializer(CommodityListSerializer):
@@ -28,5 +28,5 @@ class CommoditySerializer(CommodityListSerializer):
 
     class Meta:
         model = Commodity
-        fields = CommodityListSerializer.Meta.fields + ['is_free_fee', 'content', 'images', 'sold_num', 'total_stocks',
+        fields = CommodityListSerializer.Meta.fields + ['is_free_fee', 'content', 'images', 'total_stocks',
                                                         'freight_template']
