@@ -60,6 +60,14 @@ class Commodity(GmtCreateModifiedTimeMixin, DeleteStatusMixin):
     objects = models.Manager()
 
 
+class Specification(models.Model):
+    """商品规格"""
+    name = models.CharField(verbose_name="产品规格名称", max_length=64, null=False)
+    commodity = models.ForeignKey(Commodity, related_name='commodity_specification', on_delete=models.CASCADE, null=True)
+
+    objects = models.Manager()
+
+
 # class Evaluation(GmtCreateModifiedTimeMixin, DeleteStatusMixin):
 #     """商品评价"""
 #     prod = models.ForeignKey(verbose_name="产品名称", to=Commodity, on_delete=models.CASCADE)
