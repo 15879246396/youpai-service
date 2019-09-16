@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from rest_framework import serializers
 
-from commodity.models import Commodity, FreightTemplate
+from commodity.models import Commodity, FreightTemplate, Category
 
 
 class FreightTemplateSerializer(serializers.ModelSerializer):
@@ -30,3 +30,10 @@ class CommoditySerializer(CommodityListSerializer):
         model = Commodity
         fields = CommodityListSerializer.Meta.fields + ['is_free_fee', 'content', 'images', 'total_stocks',
                                                         'freight_template']
+
+
+class CategorySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Category
+        fields = ['id', 'name', 'pic', ]
