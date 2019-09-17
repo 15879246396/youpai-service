@@ -1,5 +1,6 @@
 from rest_framework import filters
 from rest_framework.authentication import SessionAuthentication
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.mixins import ListModelMixin
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
@@ -9,7 +10,7 @@ from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
 from account.permissions import IsAuthenticatedWechat
 from base.exceptions import ValidateException
-from commodity.models import Commodity, Category
+from commodity.models import Commodity, Category, CommodityCollect
 from commodity.serializers import CommodityListSerializer, CategorySerializer, CommoditySerializer
 from common.decorator import common_api
 
@@ -81,3 +82,26 @@ class CommodityView(APIView):
             raise ValidateException().add_message('error:error', 'commodity non-existent!')
         data = CommoditySerializer(commodity[0]).data
         return Response(data)
+
+
+@api_view(['POST'])
+@permission_classes((IsAuthenticatedWechat, ))
+@authentication_classes((JSONWebTokenAuthentication, SessionAuthentication))
+@common_api
+def commodity_collect(request):
+    """商品（取消）收藏"""
+    commodity_id = request.query_params.get("id")
+    if not commodity_id:
+        raise ValidateException().add_message('error:error', 'Incomplete Params commodity!')
+    commodity = Commodity.objects.filter(delete_status=0, id=commodity_id)
+    if not commodity:
+        raise ValidateException().add_message('error:error', 'commodity non-existent!')
+    user = request.auth.id
+    obj, _created = CommodityCollect.objects.get_or_create(
+        user=user,
+        commodity=commodity,
+    )
+    if not _created:
+        obj.delete_status = not obj.delete_status
+        obj.save()
+    return Response(obj.delete_status)

@@ -68,6 +68,14 @@ class Specification(models.Model):
     objects = models.Manager()
 
 
+class CommodityCollect(GmtCreateModifiedTimeMixin, DeleteStatusMixin):
+    """商品收藏"""
+    user = models.ForeignKey(MyUser, on_delete=models.CASCADE)
+    commodity = models.ForeignKey(Commodity, on_delete=models.CASCADE)
+
+    objects = models.Manager()
+
+
 # class Evaluation(GmtCreateModifiedTimeMixin, DeleteStatusMixin):
 #     """商品评价"""
 #     prod = models.ForeignKey(verbose_name="产品名称", to=Commodity, on_delete=models.CASCADE)

@@ -12,6 +12,7 @@ from account import apis
 urlpatterns = [
     path('login/', apis.WechatLoginView.as_view()),
     path('userInfo/', apis.WechatUserInfoAPI.as_view()),
+    path('collect/', apis.get_collect_list, name="get_collect_list"),
 ]
 
 

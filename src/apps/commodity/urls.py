@@ -13,4 +13,5 @@ urlpatterns = [
     path('', include(router.urls)),
     path('category/', apis.CategoryView.as_view(), name="category_list"),
     path('commodity/', apis.CommodityView.as_view(), name="commodity"),
+    path('collect/', apis.commodity_collect, name="commodity_collect"),
 ]
