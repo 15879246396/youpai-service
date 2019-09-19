@@ -32,12 +32,12 @@ def index_commodity(request):
     tags = CommodityTag.objects.filter(delete_status=0).order_by("seq")
     data_list = []
     for tag in tags:
-        prod_count = tag.prod_count
+        prod_count = tag.prod_count if tag.prod_count else 6
         commodities = Commodity.objects.filter(delete_status=0, commodity_tag=tag)[:prod_count]
         data = {
             "id": tag.id,
             "title": tag.title,
-            "style": tag.id,
+            "style": tag.style,
             "commodity_list": CommoditySerializer(commodities, many=True).data
         }
         data_list.append(data)
