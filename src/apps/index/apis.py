@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from commodity.models import Commodity
-from commodity.serializers import CommoditySerializer
+from commodity.serializers import CommodityListSerializer
 from common.decorator import common_api
 from index.models import IndexImg, Notice, CommodityTag
 from index.serializers import IndexImgSerializer, NoticeSerializer
@@ -38,7 +38,7 @@ def index_commodity(request):
             "id": tag.id,
             "title": tag.title,
             "style": tag.style,
-            "commodity_list": CommoditySerializer(commodities, many=True).data
+            "commodity_list": CommodityListSerializer(commodities, many=True).data
         }
         data_list.append(data)
 

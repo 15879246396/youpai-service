@@ -216,12 +216,12 @@ LOGGING = {
         },
     },
     'loggers': {
-        'service_mart': {
+        'flower_service': {
             'handlers': ['apps', 'errors'],
             'level': 'DEBUG',
             'propagate': True
         },
-        'service_mart.actions': {
+        'flower_service.actions': {
             'handlers': ['action', 'errors'],
             'level': 'DEBUG',
             'propagate': True
