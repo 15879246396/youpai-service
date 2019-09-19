@@ -4,19 +4,14 @@ import datetime
 import requests
 from django.conf import settings
 from rest_framework.authentication import SessionAuthentication
-from rest_framework.decorators import api_view, permission_classes, authentication_classes
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
-from rest_framework_jwt.serializers import jwt_decode_handler
 from rest_framework_jwt.settings import api_settings
 
 from account.permissions import IsAuthenticatedWechat
 from base.exceptions import LogicException, ValidateException
 from account.models import MyUser
-from commodity.models import CommodityCollect, Commodity
-from commodity.serializers import CommodityListSerializer
 from common.decorator import common_api
 
 
@@ -134,17 +129,3 @@ class WechatUserInfoAPI(APIView):
             sex=sex,
         )
         return Response('success')
-
-
-@api_view(['GET'])
-@permission_classes((IsAuthenticatedWechat, ))
-@authentication_classes((JSONWebTokenAuthentication, SessionAuthentication))
-@common_api
-def get_collect_list(request):
-    """我的收藏"""
-    user = request.auth.id
-    collect_list = CommodityCollect.objects.filter(delete_status=0, user=user)\
-        .order_by("-gmt_modified").values_list('id', flat=True)
-    commodities = Commodity.objects.filter(category_id__in=collect_list)
-    data = CommodityListSerializer(commodities).data
-    return Response(data)

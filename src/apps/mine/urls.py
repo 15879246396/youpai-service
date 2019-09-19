@@ -3,11 +3,11 @@
 
 from django.urls import path
 
-from account import apis
+from mine import apis
 
 
 urlpatterns = [
-
+    path('collect/', apis.get_collect_list, name="get_collect_list"),
 ]
 
 
