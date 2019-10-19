@@ -85,20 +85,20 @@ class CommodityView(APIView):
 
 
 @api_view(['POST'])
-@permission_classes((IsAuthenticatedWechat, ))
-@authentication_classes((JSONWebTokenAuthentication, SessionAuthentication))
+# @permission_classes((IsAuthenticatedWechat, ))
+# @authentication_classes((JSONWebTokenAuthentication, SessionAuthentication))
 @common_api
 def commodity_collect(request):
     """商品（取消）收藏"""
     commodity_id = request.data.get("id")
     if not commodity_id:
         raise ValidateException().add_message('error:error', 'Incomplete Params commodity!')
-    commodity = Commodity.objects.filter(delete_status=0, id=commodity_id)
+    commodity = Commodity.objects.filter(delete_status=0, id=commodity_id).first()
     if not commodity:
         raise ValidateException().add_message('error:error', 'commodity non-existent!')
     user = request.auth['user_id']
     obj, _created = CommodityCollect.objects.get_or_create(
-        user=user,
+        user_id=user,
         commodity=commodity,
     )
     if not _created:
