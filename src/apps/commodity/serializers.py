@@ -40,7 +40,7 @@ class CommoditySerializer(CommodityListSerializer):
         auth = self.context["request"].auth
         if auth:
             is_collect = CommodityCollect.objects.filter(user_id=auth['user_id'], commodity=obj.id, delete_status=0).first()
-            return is_collect
+            return bool(is_collect)
         else:
             return False
 
