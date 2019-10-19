@@ -31,7 +31,13 @@ class CommoditySerializer(CommodityListSerializer):
     def get_specification(self, obj):
         specification = obj.commodity_specification.all()
         if specification:
-            data = [{"id": x.id, "name": x.name, 'pic': x.pic, 'stocks': x.stocks} for x in specification]
+            data = [{
+                "id": x.id,
+                "name": x.name,
+                'pic': x.pic,
+                'stocks': x.stocks,
+                'price': x.price
+            } for x in specification]
             return data
 
     def get_is_collect(self, obj):
