@@ -90,7 +90,7 @@ class CommodityView(APIView):
 @common_api
 def commodity_collect(request):
     """商品（取消）收藏"""
-    commodity_id = request.query_params.get("id")
+    commodity_id = request.data.get("id")
     if not commodity_id:
         raise ValidateException().add_message('error:error', 'Incomplete Params commodity!')
     commodity = Commodity.objects.filter(delete_status=0, id=commodity_id)
