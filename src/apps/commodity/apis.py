@@ -104,4 +104,4 @@ def commodity_collect(request):
     if not _created:
         obj.delete_status = not obj.delete_status
         obj.save()
-    return Response(obj.delete_status)
+    return Response(not obj.delete_status)
