@@ -69,8 +69,8 @@ class CategoryView(APIView):
 
 class CommodityView(APIView):
     """商品详情"""
-    # permission_classes = (IsAuthenticatedWechat,)
-    # authentication_classes = (JSONWebTokenAuthentication, SessionAuthentication)
+    permission_classes = (IsAuthenticatedWechat,)
+    authentication_classes = (JSONWebTokenAuthentication, SessionAuthentication)
 
     @common_api
     def get(self, request):
