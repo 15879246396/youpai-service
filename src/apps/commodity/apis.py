@@ -96,7 +96,7 @@ def commodity_collect(request):
     commodity = Commodity.objects.filter(delete_status=0, id=commodity_id)
     if not commodity:
         raise ValidateException().add_message('error:error', 'commodity non-existent!')
-    user = request.auth.id
+    user = request.auth['user_id']
     obj, _created = CommodityCollect.objects.get_or_create(
         user=user,
         commodity=commodity,
