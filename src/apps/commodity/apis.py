@@ -85,8 +85,8 @@ class CommodityView(APIView):
 
 
 @api_view(['POST'])
-# @permission_classes((IsAuthenticatedWechat, ))
-# @authentication_classes((JSONWebTokenAuthentication, SessionAuthentication))
+@permission_classes((IsAuthenticatedWechat, ))
+@authentication_classes((JSONWebTokenAuthentication, SessionAuthentication))
 @common_api
 def commodity_collect(request):
     """商品（取消）收藏"""
