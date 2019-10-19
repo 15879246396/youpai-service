@@ -63,6 +63,9 @@ class Commodity(GmtCreateModifiedTimeMixin, DeleteStatusMixin):
 class Specification(models.Model):
     """商品规格"""
     name = models.CharField(verbose_name="产品规格名称", max_length=64, null=False)
+    pic = models.URLField(verbose_name="图", null=True)
+    price = models.DecimalField(verbose_name="价格", max_digits=15, decimal_places=2, null=False)
+    stocks = models.IntegerField(verbose_name="库存", default=0)
     commodity = models.ForeignKey(Commodity, related_name='commodity_specification', on_delete=models.CASCADE, null=True)
 
     objects = models.Manager()
