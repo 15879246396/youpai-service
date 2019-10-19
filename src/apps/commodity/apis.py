@@ -80,7 +80,7 @@ class CommodityView(APIView):
         commodity = Commodity.objects.filter(delete_status=0, id=commodity_id)
         if not commodity:
             raise ValidateException().add_message('error:error', 'commodity non-existent!')
-        data = CommoditySerializer(commodity[0]).data
+        data = CommoditySerializer(commodity[0], context={"request": request}).data
         return Response(data)
 
 
