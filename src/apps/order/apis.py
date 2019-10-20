@@ -91,9 +91,9 @@ def confirm(request):
         "count": count,
         "prod_total": prod_total,
         "coupon": coupon,
-        "freight": freight.quantize(Decimal("0.00")),
+        "freight": "%.2f" % freight,
         "discounted_price": "0.00",
-        "total": (prod_total + freight).quantize(Decimal("0.00"))
+        "total": "%.2f" % (prod_total + freight)
     }
     return Response(data)
 
