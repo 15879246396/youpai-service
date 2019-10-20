@@ -55,6 +55,7 @@ PROJECT_APPS = [
     'index',
     'commodity',
     'order',
+    'mine',
 ]
 INSTALLED_APPS += PROJECT_APPS
 
