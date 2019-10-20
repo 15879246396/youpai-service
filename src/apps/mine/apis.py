@@ -20,12 +20,24 @@ from mine.serializers import ShoppingCartSerializer
 @common_api
 def get_collect_list(request):
     """我的收藏"""
-    user = request.auth.id
+    user = request.auth['user_id']
     collect_list = CommodityCollect.objects.filter(delete_status=0, user=user)\
         .order_by("-gmt_modified").values_list('id', flat=True)
     commodities = Commodity.objects.filter(category_id__in=collect_list)
     data = CommodityListSerializer(commodities).data
     return Response(data)
+
+
+@api_view(['GET'])
+@permission_classes((IsAuthenticatedWechat, ))
+@authentication_classes((JSONWebTokenAuthentication, SessionAuthentication))
+@common_api
+def shopping_cart_count(request):
+    """购物车数量"""
+    user = request.auth['user_id']
+    my_cart = ShoppingCart.objects.filter(user_id=user, delete_status=0, count__gt=0)
+    count = sum(my_cart.values_list("count", flat=True))
+    return Response(count)
 
 
 class ShoppingCartView(APIView):
