@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.response import Response
@@ -52,7 +54,7 @@ def confirm(request):
         raise ValidateException().add_message('error:error', 'Incomplete Params!')
 
     # TODO 运费计算
-    freight = float()
+    freight = Decimal()
     for item in prod_items:
         commodity = Commodity.objects.filter(delete_status=0, id=item['prodId']).first()
         if commodity.is_free_fee:
@@ -82,14 +84,14 @@ def confirm(request):
 
     # 最终计算
     count = sum([x["count"] for x in prod_items])
-    prod_total = sum([x["count"]*x["price"] for x in prod_items])
+    prod_total = Decimal(sum([x["count"]*x["price"] for x in prod_items]))
     data = {
         "addr": None,
         'prodItems': prod_items,
         "count": count,
         "prod_total": prod_total,
         "coupon": coupon,
-        "freight": "{:.2f}".format(freight),
+        "freight": freight,
         "discounted_price": 0,
         "total": prod_total + freight
     }
