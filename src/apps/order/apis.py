@@ -76,7 +76,7 @@ def confirm(request):
                 "pic": pic,
                 "specification": specification_name,
                 "price": price.quantize(Decimal("0.00")),
-                "count": order_item["prodCount"],
+                "count": item["prodCount"],
             }
             prod_items.append(prod)
     else:
