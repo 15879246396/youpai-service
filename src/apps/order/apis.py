@@ -36,7 +36,7 @@ def confirm(request):
             specification_name = specification.name
             price = specification.price
         else:
-            if commodity.stocks < order_item["prodCount"]:
+            if commodity.total_stocks < order_item["prodCount"]:
                 raise ValidateException().add_message('error:error', '抱歉，商品库存不足!')
             pic = commodity.pic
             specification_name = " "
@@ -63,7 +63,7 @@ def confirm(request):
                 specification_name = specification.name
                 price = specification.price
             else:
-                if commodity.stocks < item["prodCount"]:
+                if commodity.total_stocks < item["prodCount"]:
                     raise ValidateException().add_message('error:error', '抱歉，商品【{}】库存不足!'.format(commodity.name))
                 pic = commodity.pic
                 specification_name = " "
