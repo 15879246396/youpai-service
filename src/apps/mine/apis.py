@@ -51,12 +51,12 @@ class ShoppingCartView(APIView):
             raise ValidateException().add_message('error:error', 'Incomplete Params!')
         user = request.auth['user_id']
         shopping = ShoppingCart.objects.filter(
-            user_id=user, commodity=commodity_id, specification=specification_id).first()
+            user_id=user, commodity_id=commodity_id, specification_id=specification_id).first()
         if shopping:
             shopping.update(count=F("count")+count, delete_status=0)
         else:
             ShoppingCart.objects.create(
-                user_id=user, commodity=commodity_id, specification=specification_id, count=count)
+                user_id=user, commodity_id=commodity_id, specification_id=specification_id, count=count)
         return Response('success')
 
     @common_api
@@ -68,7 +68,7 @@ class ShoppingCartView(APIView):
         user = request.auth['user_id']
         for item in items:
             shopping = ShoppingCart.objects.filter(
-                user_id=user, commodity=item["prodId"], specification=item["skuId"]).first()
+                user_id=user, commodity_id=item["prodId"], specification_id=item["skuId"]).first()
             shopping.update(delete_status=1, count=0)
         return Response('success')
 
@@ -82,6 +82,6 @@ class ShoppingCartView(APIView):
             raise ValidateException().add_message('error:error', 'Incomplete Params!')
         user = request.auth['user_id']
         shopping = ShoppingCart.objects.filter(
-            user_id=user, commodity=commodity_id, specification=specification_id)
+            user_id=user, commodity_id=commodity_id, specification_id=specification_id)
         shopping.update(count=count)
         return Response('success')
