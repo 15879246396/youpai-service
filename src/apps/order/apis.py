@@ -46,7 +46,7 @@ def confirm(request):
             "name": commodity.name,
             "pic": pic,
             "specification": specification_name,
-            "price": price,
+            "price": price.quantize(Decimal("0.00")),
             "count": order_item["prodCount"],
         }
         prod_items.append(prod)
@@ -84,16 +84,16 @@ def confirm(request):
 
     # 最终计算
     count = sum([x["count"] for x in prod_items])
-    prod_total = Decimal(sum([x["count"]*x["price"] for x in prod_items]))
+    prod_total = Decimal(sum([x["count"]*x["price"] for x in prod_items])).quantize(Decimal("0.00"))
     data = {
         "addr": None,
         'prodItems': prod_items,
         "count": count,
         "prod_total": prod_total,
         "coupon": coupon,
-        "freight": freight,
-        "discounted_price": 0,
-        "total": prod_total + freight
+        "freight": freight.quantize(Decimal("0.00")),
+        "discounted_price": "0.00",
+        "total": (prod_total + freight).quantize(Decimal("0.00"))
     }
     return Response(data)
 
