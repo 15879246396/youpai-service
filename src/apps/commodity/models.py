@@ -36,7 +36,7 @@ class FreightTemplate(GmtCreateModifiedTimeMixin, DeleteStatusMixin):
     freight = models.DecimalField(verbose_name="运费", max_digits=15, decimal_places=2, null=False)
     charge_type = models.IntegerField(verbose_name="收费方式", choices=ChargeType)
     amount = models.DecimalField(verbose_name="需满金额", max_digits=15, decimal_places=2, null=True, blank=True)
-    piece = models.DecimalField(verbose_name="需满件数", max_digits=15, decimal_places=2, null=True, blank=True)
+    piece = models.IntegerField(verbose_name="需满件数", null=True)
 
     objects = models.Manager()
 
