@@ -54,6 +54,7 @@ PROJECT_APPS = [
     'upload',
     'index',
     'commodity',
+    'order',
 ]
 INSTALLED_APPS += PROJECT_APPS
 
