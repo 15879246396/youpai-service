@@ -50,6 +50,33 @@ def confirm(request):
             "count": order_item["prodCount"],
         }
         prod_items.append(prod)
+    elif baskets:
+        for item in baskets:
+            commodity = Commodity.objects.filter(delete_status=0, id=item['prodId']).first()
+            if not commodity:
+                raise ValidateException().add_message('error:error', '含有已下架商品!')
+            if item['skuId']:
+                specification = Specification.objects.filter(id=item['skuId'], commodity=commodity).first()
+                if specification.stocks < item["prodCount"]:
+                    raise ValidateException().add_message('error:error', '抱歉，商品【{}】库存不足!'.format(commodity.name))
+                pic = specification.pic
+                specification_name = specification.name
+                price = specification.price
+            else:
+                if commodity.stocks < item["prodCount"]:
+                    raise ValidateException().add_message('error:error', '抱歉，商品【{}】库存不足!'.format(commodity.name))
+                pic = commodity.pic
+                specification_name = " "
+                price = commodity.price
+            prod = {
+                "prodId": order_item['prodId'],
+                "name": commodity.name,
+                "pic": pic,
+                "specification": specification_name,
+                "price": price.quantize(Decimal("0.00")),
+                "count": order_item["prodCount"],
+            }
+            prod_items.append(prod)
     else:
         raise ValidateException().add_message('error:error', 'Incomplete Params!')
 
