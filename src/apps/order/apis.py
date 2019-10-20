@@ -43,6 +43,7 @@ def confirm(request):
             price = commodity.price
         prod = {
             "prodId": order_item['prodId'],
+            "skuId": order_item['skuId'],
             "name": commodity.name,
             "pic": pic,
             "specification": specification_name,
@@ -69,7 +70,8 @@ def confirm(request):
                 specification_name = " "
                 price = commodity.price
             prod = {
-                "prodId": order_item['prodId'],
+                "prodId": item['prodId'],
+                "skuId": item['skuId'],
                 "name": commodity.name,
                 "pic": pic,
                 "specification": specification_name,
