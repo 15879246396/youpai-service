@@ -51,7 +51,7 @@ class ShoppingCartView(APIView):
             raise ValidateException().add_message('error:error', 'Incomplete Params!')
         user = request.auth['user_id']
         shopping = ShoppingCart.objects.filter(
-            user_id=user, commodity_id=commodity_id, specification_id=specification_id).first()
+            user_id=user, commodity_id=commodity_id, specification_id=specification_id)
         if shopping:
             shopping.update(count=F("count")+count, delete_status=0)
         else:
@@ -68,7 +68,7 @@ class ShoppingCartView(APIView):
         user = request.auth['user_id']
         for item in items:
             shopping = ShoppingCart.objects.filter(
-                user_id=user, commodity_id=item["prodId"], specification_id=item["skuId"]).first()
+                user_id=user, commodity_id=item["prodId"], specification_id=item["skuId"])
             shopping.update(delete_status=1, count=0)
         return Response('success')
 

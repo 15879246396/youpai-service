@@ -37,8 +37,8 @@ class ShoppingCartSerializer(serializers.ModelSerializer):
     def get_price(self, obj):
         specification = obj.specification
         if specification:
-            return specification.price
-        return obj.commodity.price
+            return "%.2f" % specification.price
+        return "%.2f" % obj.commodity.price
 
     class Meta:
         model = ShoppingCart
