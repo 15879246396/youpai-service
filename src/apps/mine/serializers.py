@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from rest_framework import serializers
 
-from mine.models import ShoppingCart
+from mine.models import ShoppingCart, ShippingAddr
 
 
 class ShoppingCartSerializer(serializers.ModelSerializer):
@@ -43,3 +43,13 @@ class ShoppingCartSerializer(serializers.ModelSerializer):
     class Meta:
         model = ShoppingCart
         fields = ['id', 'commodity', 'specification', 'pic', 'count', 'price']
+
+
+class ShippingAddrSerializer(serializers.ModelSerializer):
+    province = serializers.CharField(source='province.name', read_only=True)
+    city = serializers.CharField(source='city.name', read_only=True)
+    area = serializers.CharField(source='area.name', read_only=True)
+
+    class Meta:
+        model = ShippingAddr
+        fields = ['id', 'user', 'default', 'receiver', 'addr', 'phone', 'province', 'city', 'area']

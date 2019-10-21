@@ -1,3 +1,4 @@
+from django.db import transaction
 from django.db.models import F
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
@@ -10,8 +11,8 @@ from base.exceptions import ValidateException
 from commodity.models import CommodityCollect, Commodity
 from commodity.serializers import CommodityListSerializer
 from common.decorator import common_api
-from mine.models import ShoppingCart
-from mine.serializers import ShoppingCartSerializer
+from mine.models import ShoppingCart, ShippingAddr
+from mine.serializers import ShoppingCartSerializer, ShippingAddrSerializer
 
 
 @api_view(['GET'])
@@ -78,11 +79,12 @@ class ShoppingCartView(APIView):
         if not items:
             raise ValidateException().add_message('error:error', 'Incomplete Params!')
         user = request.auth['user_id']
-        for item in items:
-            shopping = ShoppingCart.objects.filter(
-                user_id=user, commodity_id=item["prodId"], specification_id=item["skuId"])
-            shopping.update(delete_status=1, count=0)
-        return Response('success')
+        with transaction.atomic():
+            for item in items:
+                shopping = ShoppingCart.objects.filter(
+                    user_id=user, commodity_id=item["prodId"], specification_id=item["skuId"])
+                shopping.update(delete_status=1, count=0)
+            return Response('success')
 
     @common_api
     def post(self, request):
@@ -95,5 +97,58 @@ class ShoppingCartView(APIView):
         user = request.auth['user_id']
         shopping = ShoppingCart.objects.filter(
             user_id=user, commodity_id=commodity_id, specification_id=specification_id)
-        shopping.update(count=count)
+        with transaction.atomic():
+            shopping.update(count=count)
+            return Response('success')
+
+
+class ShoppingCartView(APIView):
+    """收货地址"""
+    permission_classes = (IsAuthenticatedWechat,)
+    authentication_classes = (JSONWebTokenAuthentication, SessionAuthentication)
+
+    @common_api
+    def get(self, request):
+        user = request.auth['user_id']
+        addr = ShippingAddr.objects.filter(delete_status=0, user_id=user)
+        data = ShippingAddrSerializer(addr, many=True).data
+        return Response(data)
+
+    @common_api
+    def post(self, request):
+        update_data = request.data
+        addr_id = update_data.pop('id')
+        if not all((addr_id, update_data)):
+            raise ValidateException().add_message('error:error', 'Incomplete Params!')
+        user = request.auth['user_id']
+        addr = ShippingAddr.objects.filter(delete_status=0, user_id=user, id=addr_id)
+        with transaction.atomic():
+            addr.update(**update_data)
+            data = ShippingAddrSerializer(addr.first()).data
+            return Response(data)
+
+    @common_api
+    def put(self, request):
+        put_data = request.data
+        user = request.auth['user_id']
+        addr = ShippingAddr.objects.filter(delete_status=0, user_id=user)
+        if not addr:
+            put_data['default'] = True
+        with transaction.atomic():
+            addr = ShippingAddr.objects.create(**put_data)
+            data = ShippingAddrSerializer(addr).data
+            return Response(data)
+
+    @common_api
+    def delete(self, request):
+        addr_id = request.data.get('id')
+        if not addr_id:
+            raise ValidateException().add_message('error:error', 'Incomplete Params!')
+        user = request.auth['user_id']
+        addr = ShippingAddr.objects.filter(delete_status=0, user_id=user, id=addr_id)
+        addr.update(delete_status=1)
+        addr = ShippingAddr.objects.filter(delete_status=0, user_id=user).first()
+        if addr:
+            addr.default = True
+            addr.save()
         return Response('success')
