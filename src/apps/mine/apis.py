@@ -102,7 +102,7 @@ class ShoppingCartView(APIView):
             return Response('success')
 
 
-class ShoppingCartView(APIView):
+class ShoppingAddrView(APIView):
     """收货地址"""
     permission_classes = (IsAuthenticatedWechat,)
     authentication_classes = (JSONWebTokenAuthentication, SessionAuthentication)
@@ -152,3 +152,22 @@ class ShoppingCartView(APIView):
             addr.default = True
             addr.save()
         return Response('success')
+
+
+@api_view(['POST'])
+@permission_classes((IsAuthenticatedWechat, ))
+@authentication_classes((JSONWebTokenAuthentication, SessionAuthentication))
+@common_api
+def set_default_addr(request):
+    """设为默认收货地址"""
+    addr_id = request.data.get('id')
+    if not addr_id:
+        raise ValidateException().add_message('error:error', 'Incomplete Params!')
+    user = request.auth['user_id']
+    addr = ShippingAddr.objects.filter(delete_status=0, user_id=user, id=addr_id)
+    if not addr:
+        raise ValidateException().add_message('error:error', 'Addr Id Error!')
+    with transaction.atomic():
+        addr.update(default=True)
+        ShippingAddr.objects.filter(delete_status=0, user_id=user, default=True).update(default=False)
+        return Response("success")
