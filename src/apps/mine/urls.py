@@ -11,7 +11,7 @@ urlpatterns = [
     path('cart/', apis.ShoppingCartView.as_view(), name="cart"),
     path('cartCount/', apis.shopping_cart_count, name="shopping_cart_count"),
     path('addr/', apis.ShoppingAddrView.as_view(), name="addr"),
-    path('defaultAddr/', apis.set_default_addr.as_view(), name="set_default_addr"),
+    path('defaultAddr/', apis.set_default_addr, name="set_default_addr"),
 ]
 
 
