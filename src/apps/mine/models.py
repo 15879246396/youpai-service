@@ -19,7 +19,7 @@ class ShoppingCart(GmtCreateModifiedTimeMixin, DeleteStatusMixin):
 class Area(models.Model):
     """地址"""
     name = models.CharField(verbose_name="地区名称（省市区县）", max_length=32, null=False)
-    parent = models.ForeignKey('self', verbose_name="上级地区", on_delete=models.CASCADE, null=True)
+    parent = models.ForeignKey('self', verbose_name="上级地区", related_name="subarea", on_delete=models.CASCADE, null=True)
     level = models.IntegerField(verbose_name="级别", choices=[(1, '省'), (2, '市'), (3, '区/县')], default=1)
     objects = models.Manager()
 
