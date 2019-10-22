@@ -266,9 +266,10 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 FILE_PATH = '/upload_file/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'upload_file')
 
 AUTH_USER_MODEL = 'account.MyUser'
-MEDIA_URL = '/api/upload/api/media/'
+MEDIA_URL = '/api/upload/media/'
 
 # 微信配置
 WEAAPP_KEY = 'wxe89a234ac744dced'
