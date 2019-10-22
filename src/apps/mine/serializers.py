@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from rest_framework import serializers
 
-from mine.models import ShoppingCart, ShippingAddr
+from mine.models import ShoppingCart, ShippingAddr, Area
 
 
 class ShoppingCartSerializer(serializers.ModelSerializer):
@@ -43,6 +43,13 @@ class ShoppingCartSerializer(serializers.ModelSerializer):
     class Meta:
         model = ShoppingCart
         fields = ['id', 'commodity', 'specification', 'pic', 'count', 'price']
+
+
+class AreaSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Area
+        fields = ['id', 'name', 'level']
 
 
 class ShippingAddrSerializer(serializers.ModelSerializer):

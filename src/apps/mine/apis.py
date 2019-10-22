@@ -11,8 +11,8 @@ from base.exceptions import ValidateException
 from commodity.models import CommodityCollect, Commodity
 from commodity.serializers import CommodityListSerializer
 from common.decorator import common_api
-from mine.models import ShoppingCart, ShippingAddr
-from mine.serializers import ShoppingCartSerializer, ShippingAddrSerializer
+from mine.models import ShoppingCart, ShippingAddr, Area
+from mine.serializers import ShoppingCartSerializer, ShippingAddrSerializer, AreaSerializer
 
 
 @api_view(['GET'])
@@ -171,3 +171,15 @@ def set_default_addr(request):
         addr.update(default=True)
         ShippingAddr.objects.filter(delete_status=0, user_id=user, default=True).update(default=False)
         return Response("success")
+
+
+@api_view(['GET'])
+@permission_classes((IsAuthenticatedWechat, ))
+@authentication_classes((JSONWebTokenAuthentication, SessionAuthentication))
+@common_api
+def get_area(request):
+    """地址区域"""
+    area_id = request.query_params.get('areaId')
+    areas = Area.objects.filter(parent_id=area_id)
+    data = AreaSerializer(areas, many=True).data
+    return Response(data)
