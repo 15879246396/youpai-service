@@ -106,6 +106,15 @@ DATABASES = {
     }
 }
 
+CACHES = {
+   "default": {  # 默认
+       "BACKEND": "django_redis.cache.RedisCache",
+       "LOCATION": "redis://127.0.0.1:6379",
+       "OPTIONS": {
+           "CLIENT_CLASS": "django_redis.client.DefaultClient",
+       }
+   },
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
@@ -264,3 +273,8 @@ MEDIA_URL = '/api/upload/api/media/'
 # 微信配置
 WEAAPP_KEY = 'wxe89a234ac744dced'
 WEAAPP_SECRET = '1d4f46b8a37b2b2b9e364a665fb2c652'
+
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
