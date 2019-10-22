@@ -59,4 +59,4 @@ class ShippingAddrSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ShippingAddr
-        fields = ['id', 'user', 'default', 'receiver', 'addr', 'phone', 'province', 'city', 'area']
+        fields = ['id', 'default', 'receiver', 'addr', 'phone', 'province', 'city', 'area']

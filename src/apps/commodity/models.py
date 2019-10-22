@@ -15,7 +15,19 @@ ChargeType = (
     (0, "满件数"),
     (1, "满金额"),
     (2, "满件数或者满金额"),
+    (3, "指定地区包邮"),
 )
+
+
+class Coupon(GmtCreateModifiedTimeMixin, DeleteStatusMixin):
+    """优惠券"""
+    type = models.IntegerField(verbose_name="优惠类型", choices=[(1, '全场通用'), (2, '指定商品可用')], default=1)
+    amount = models.DecimalField(verbose_name="优惠金额", max_digits=15, decimal_places=0)
+    condition = models.DecimalField(verbose_name="需满金额", max_digits=15, decimal_places=0)
+    min_data = models.DateTimeField(verbose_name='有效期（后）')
+    max_data = models.DateTimeField(verbose_name='有效期（前）')
+
+    objects = models.Manager()
 
 
 class Category(GmtCreateModifiedTimeMixin, DeleteStatusMixin):
@@ -37,6 +49,7 @@ class FreightTemplate(GmtCreateModifiedTimeMixin, DeleteStatusMixin):
     charge_type = models.IntegerField(verbose_name="收费方式", choices=ChargeType)
     amount = models.DecimalField(verbose_name="需满金额", max_digits=15, decimal_places=2, null=True, blank=True)
     piece = models.IntegerField(verbose_name="需满件数", null=True)
+    area_list = models.CharField(verbose_name="包邮省id列表", max_length=128, null=True)
 
     objects = models.Manager()
 
@@ -56,6 +69,7 @@ class Commodity(GmtCreateModifiedTimeMixin, DeleteStatusMixin):
     commodity_tag = models.ForeignKey(CommodityTag, related_name='tag', on_delete=models.CASCADE, null=True)
     sold_num = models.IntegerField(verbose_name="销量", null=True, default=0)
     total_stocks = models.IntegerField(verbose_name="总库存", default=0)
+    coupon = models.ForeignKey(verbose_name="优惠券", to=Coupon, related_name='commodity', on_delete=models.CASCADE, null=True)
 
     objects = models.Manager()
 
@@ -94,7 +108,5 @@ class CommodityCollect(GmtCreateModifiedTimeMixin, DeleteStatusMixin):
 #     reviewed_status = models.IntegerField(verbose_name="审核状态", choices=ReviewedStatus, default=0)
 
     # objects = models.Manager()
-
-
 
 

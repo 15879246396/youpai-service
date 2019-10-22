@@ -2,7 +2,7 @@ from django.db import models
 
 # Create your models here.
 from account.models import MyUser
-from commodity.models import Commodity, Specification
+from commodity.models import Commodity, Specification, Coupon
 from common.models import GmtCreateModifiedTimeMixin, DeleteStatusMixin
 
 
@@ -34,5 +34,14 @@ class ShippingAddr(GmtCreateModifiedTimeMixin, DeleteStatusMixin):
     province = models.ForeignKey(Area, verbose_name="省份", related_name="province", on_delete=models.CASCADE)
     city = models.ForeignKey(Area, verbose_name="城市", related_name="city", on_delete=models.CASCADE)
     area = models.ForeignKey(Area, verbose_name="区/县", related_name="area", on_delete=models.CASCADE)
+
+    objects = models.Manager()
+
+
+class MyCoupon(GmtCreateModifiedTimeMixin, DeleteStatusMixin):
+    """我的优惠券"""
+    user = models.ForeignKey(MyUser, on_delete=models.CASCADE)
+    coupon = models.ForeignKey(Coupon, on_delete=models.CASCADE)
+    used = models.BooleanField(verbose_name="是否使用", default=False)
 
     objects = models.Manager()

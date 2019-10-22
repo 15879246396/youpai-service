@@ -1,3 +1,4 @@
+from datetime import datetime
 from decimal import Decimal
 
 from rest_framework.authentication import SessionAuthentication
@@ -9,6 +10,8 @@ from account.permissions import IsAuthenticatedWechat
 from base.exceptions import ValidateException
 from commodity.models import Commodity, Specification
 from common.decorator import common_api
+from mine.models import ShippingAddr, MyCoupon
+from mine.serializers import ShippingAddrSerializer
 
 
 @api_view(['POST'])
@@ -21,7 +24,8 @@ def confirm(request):
     addr_id = data.get("addrId")
     order_item = data.get("orderItem")
     baskets = data.get("basketIds")
-    coupons = data.get("couponIds")
+    coupon_id = data.get("couponId")
+    user = request.auth['user_id']
 
     prod_items = []
     if order_item:
@@ -82,6 +86,13 @@ def confirm(request):
     else:
         raise ValidateException().add_message('error:error', 'Incomplete Params!')
 
+    # 地址
+    if addr_id:
+        shipping_addr = ShippingAddr.objects.get(id=addr_id)
+    else:
+        shipping_addr = ShippingAddr.objects.filter(delete_status=0, user_id=user, default=True).first()
+    addr, province_id = (shipping_addr.province_id, ShippingAddrSerializer(shipping_addr).data) if shipping_addr else (None, None)
+
     # TODO 运费计算
     freight = Decimal()
     for item in prod_items:
@@ -99,23 +110,53 @@ def confirm(request):
                 continue
             else:
                 freight += freight_template.freight
-        else:
+        elif freight_template.charge_type == 2:
             if item["count"] >= freight_template.piece or item["count"]*item["price"] >= freight_template.amount:
+                continue
+            else:
+                freight += freight_template.freight
+        elif freight_template.charge_type == 3:
+            if province_id in eval(freight_template.area_list):
                 continue
             else:
                 freight += freight_template.freight
 
     # TODO 优惠券
+    my_coupons = MyCoupon.objects.filter(user_id=user, used=False, delete_status=0)
+    now_date = datetime.now()
+    prod_id_list = [x['prodId'] for x in prod_items]
+    available, unavailable = [], []
+    for my_coupon in my_coupons:
+        if my_coupon.coupon.min_data < now_date < my_coupon.coupon.max_data and my_coupon.coupon_id in prod_id_list:
+            available.append({
+                'type': my_coupon.coupon_type,
+                'amount': my_coupon.coupon_amount,
+                'condition': my_coupon.coupon_condition,
+                'min_data': my_coupon.coupon_min_data,
+                'max_data': my_coupon.coupon_max_data,
+            })
+        else:
+            unavailable.append({
+                'type': my_coupon.coupon_type,
+                'amount': my_coupon.coupon_amount,
+                'condition': my_coupon.coupon_condition,
+                'min_data': my_coupon.coupon_min_data,
+                'max_data': my_coupon.coupon_max_data,
+            })
+
     coupon = {
-            "available": [],
-            "unavailable": []
+            "available": available,
+            "unavailable": unavailable
     }
+    if coupon_id:
+        # TODO
+        pass
 
     # 最终计算
     count = sum([x["count"] for x in prod_items])
     prod_total = Decimal(sum([x["count"]*x["price"] for x in prod_items])).quantize(Decimal("0.00"))
     data = {
-        "addr": None,
+        "addr": addr,
         'prodItems': prod_items,
         "count": count,
         "prod_total": prod_total,
