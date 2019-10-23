@@ -1,6 +1,8 @@
+import uuid
 from datetime import datetime
 from decimal import Decimal
 
+from django.core.cache import cache
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.response import Response
@@ -127,8 +129,10 @@ def confirm(request):
     prod_id_list = [x['prodId'] for x in prod_items]
     available, unavailable = [], []
     for my_coupon in my_coupons:
-        if my_coupon.coupon.min_data < now_date < my_coupon.coupon.max_data and my_coupon.coupon_id in prod_id_list:
+        if my_coupon.coupon.min_data < now_date < my_coupon.coupon.max_data and \
+                (my_coupon.coupon.type == 1 or my_coupon.coupon_id in prod_id_list):
             available.append({
+                'id': my_coupon.coupon_id,
                 'type': my_coupon.coupon_type,
                 'amount': my_coupon.coupon_amount,
                 'condition': my_coupon.coupon_condition,
@@ -137,24 +141,50 @@ def confirm(request):
             })
         else:
             unavailable.append({
-                'type': my_coupon.coupon_type,
-                'amount': my_coupon.coupon_amount,
-                'condition': my_coupon.coupon_condition,
-                'min_data': my_coupon.coupon_min_data,
-                'max_data': my_coupon.coupon_max_data,
+                'id': my_coupon.coupon_id,
+                'type': my_coupon.coupon.type,
+                'amount': my_coupon.coupon.amount,
+                'condition': my_coupon.coupon.condition,
+                'min_data': my_coupon.coupon.min_data,
+                'max_data': my_coupon.coupon.max_data,
             })
 
     coupon = {
             "available": available,
             "unavailable": unavailable
     }
+    discounted_price = Decimal()
     if coupon_id:
-        # TODO
-        pass
+        discounted_coupons = my_coupons.filter(coupon_id=coupon_id).first()
+        if not discounted_coupons and coupon_id not in [x['id'] for x in available]:
+            raise ValidateException().add_message('error:error', 'Params Error!')
+
+        discounted_price = discounted_coupons.coupon.amount
 
     # 最终计算
     count = sum([x["count"] for x in prod_items])
     prod_total = Decimal(sum([x["count"]*x["price"] for x in prod_items])).quantize(Decimal("0.00"))
+
+    # 将预定确认订单存缓存，方便确认订单接口直接获取
+    order_uuid = 'ORDER_{}'.format(uuid.uuid1())
+    if addr_id:
+        order_data = {
+            'order': {
+                'user_id': user,
+                'user_addr_id': addr_id,
+                'price': prod_total + freight - discounted_price,
+                'coupon_id': coupon_id,
+                'reduce_amount': discounted_price,
+                'product_nums': count,
+                'freight_amount': freight,
+            },
+            'order_item': [{
+                'commodity_id': x['prodId'],
+                'specification_id': x['skuId'],
+                'count': x['count'],
+            } for x in prod_items]
+        }
+        cache.set(order_uuid, order_data, 60 * 10)
     data = {
         "addr": addr,
         'prodItems': prod_items,
@@ -162,8 +192,9 @@ def confirm(request):
         "prod_total": prod_total,
         "coupon": coupon,
         "freight": "%.2f" % freight,
-        "discounted_price": "0.00",
-        "total": "%.2f" % (prod_total + freight)
+        "discounted_price": "%.2f" % discounted_price,
+        "total": "%.2f" % (prod_total + freight - discounted_price),
+        'order_uuid': order_uuid
     }
     return Response(data)
 

@@ -1,7 +1,7 @@
 from django.db import models
 
 from account.models import MyUser
-from commodity.models import Commodity, Specification
+from commodity.models import Commodity, Specification, Coupon
 from common.models import GmtCreateModifiedTimeMixin, DeleteStatusMixin
 from mine.models import ShippingAddr
 from order.utils import generate_ordering_no
@@ -40,14 +40,15 @@ class Order(GmtCreateModifiedTimeMixin, DeleteStatusMixin):
     user = models.ForeignKey(MyUser, related_name='order', on_delete=models.PROTECT)
     user_addr = models.ForeignKey(ShippingAddr, verbose_name='用户订单地址', related_name='order', on_delete=models.PROTECT)
     price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True, verbose_name='订单价格')
+    coupon = models.ForeignKey(Coupon, verbose_name='优惠券', null=True, on_delete=models.CASCADE)
     reduce_amount = models.DecimalField(verbose_name="优惠金额", max_digits=15, decimal_places=2, default=0.00)
     status = models.IntegerField(verbose_name="订单状态", choices=ORDER_STATUS, default=1)
     product_nums = models.IntegerField(verbose_name="订单商品总数")
     pay_status = models.BooleanField(default=False, verbose_name="支付状态")
-    pay_type = models.IntegerField(verbose_name="支付方式", choices=[(1, '微信支付'), (2, '支付宝支付'), (3, '手动代付')], default=1)
+    pay_type = models.IntegerField(verbose_name="支付方式", choices=[(1, '微信支付'), (2, '支付宝支付'), (3, '手动代付')], null=True)
     pay_time = models.DateTimeField(blank=True, null=True, verbose_name='订单支付(完成)时间')
     freight_amount = models.DecimalField(verbose_name="订单运费", max_digits=15, decimal_places=2, default=0.00)
-    delivery = models.ForeignKey(Delivery, on_delete=models.CASCADE)
+    delivery = models.ForeignKey(Delivery, on_delete=models.CASCADE, null=True)
     shipment_no = models.CharField(max_length=128, verbose_name='物流单号', null=True)
     dvy_time = models.DateTimeField(blank=True, null=True, verbose_name='发货时间')
     finally_time = models.DateTimeField(blank=True, null=True, verbose_name='订单完成时间')
@@ -61,7 +62,7 @@ class OrderItem(GmtCreateModifiedTimeMixin, DeleteStatusMixin):
     """订单项"""
     order = models.ForeignKey(Order, related_name='order', on_delete=models.PROTECT)
     commodity = models.ForeignKey(Commodity, on_delete=models.CASCADE)
-    specification = models.ForeignKey(Specification, on_delete=models.CASCADE)
+    specification = models.ForeignKey(Specification, on_delete=models.CASCADE, null=True)
     count = models.IntegerField(verbose_name="商品数量")
     comment_status = models.BooleanField(default=False, verbose_name="是否评价")
 
