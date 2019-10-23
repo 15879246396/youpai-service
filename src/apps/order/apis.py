@@ -91,9 +91,11 @@ def confirm(request):
     # 地址
     if addr_id:
         shipping_addr = ShippingAddr.objects.get(id=addr_id)
+        addr = None
     else:
         shipping_addr = ShippingAddr.objects.filter(delete_status=0, user_id=user, default=True).first()
-    addr, province_id = (shipping_addr.province_id, ShippingAddrSerializer(shipping_addr).data) if shipping_addr else (None, None)
+        addr = shipping_addr.province_id
+    province_id = ShippingAddrSerializer(shipping_addr).data if shipping_addr else None
 
     # TODO 运费计算
     freight = Decimal()
@@ -133,11 +135,11 @@ def confirm(request):
                 (my_coupon.coupon.type == 1 or my_coupon.coupon_id in prod_id_list):
             available.append({
                 'id': my_coupon.coupon_id,
-                'type': my_coupon.coupon_type,
-                'amount': my_coupon.coupon_amount,
-                'condition': my_coupon.coupon_condition,
-                'min_data': my_coupon.coupon_min_data,
-                'max_data': my_coupon.coupon_max_data,
+                'type': my_coupon.coupon.type,
+                'amount': my_coupon.coupon.amount,
+                'condition': my_coupon.coupon.condition,
+                'min_data': my_coupon.coupon.min_data,
+                'max_data': my_coupon.coupon.max_data,
             })
         else:
             unavailable.append({
@@ -150,8 +152,9 @@ def confirm(request):
             })
 
     coupon = {
-            "available": available,
-            "unavailable": unavailable
+        "available": available,
+        "unavailable": unavailable,
+        "count": len(available) + len(unavailable)
     }
     discounted_price = Decimal()
     if coupon_id:
