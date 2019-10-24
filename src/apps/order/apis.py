@@ -17,7 +17,7 @@ from mine.serializers import ShippingAddrSerializer
 
 
 @api_view(['POST'])
-@permission_classes((IsAuthenticatedWechat, ))
+@permission_classes((IsAuthenticatedWechat,))
 @authentication_classes((JSONWebTokenAuthentication, SessionAuthentication))
 @common_api
 def confirm(request):
@@ -110,12 +110,12 @@ def confirm(request):
             else:
                 freight += freight_template.freight
         elif freight_template.charge_type == 1:
-            if item["count"]*item["price"] >= freight_template.amount:
+            if item["count"] * item["price"] >= freight_template.amount:
                 continue
             else:
                 freight += freight_template.freight
         elif freight_template.charge_type == 2:
-            if item["count"] >= freight_template.piece or item["count"]*item["price"] >= freight_template.amount:
+            if item["count"] >= freight_template.piece or item["count"] * item["price"] >= freight_template.amount:
                 continue
             else:
                 freight += freight_template.freight
@@ -124,6 +124,9 @@ def confirm(request):
                 continue
             else:
                 freight += freight_template.freight
+    # 最终计算
+    count = sum([x["count"] for x in prod_items])
+    prod_total = Decimal(sum([x["count"] * x["price"] for x in prod_items])).quantize(Decimal("0.00"))
 
     # TODO 优惠券
     my_coupons = MyCoupon.objects.filter(user_id=user, used=False, delete_status=0)
@@ -132,7 +135,10 @@ def confirm(request):
     available, unavailable = [], []
     for my_coupon in my_coupons:
         if my_coupon.coupon.min_data <= now_date < my_coupon.coupon.max_data and \
-                (my_coupon.coupon.type == 1 or my_coupon.coupon_id in prod_id_list):
+                ((my_coupon.coupon.type == 2 and my_coupon.coupon.commodity.id in prod_id_list and
+                  my_coupon.coupon.amount <=
+                  sum([x["count"] * x["price"] for x in prod_items if x['prodId'] == my_coupon.coupon.commodity.id])) or
+                 (my_coupon.coupon.type == 1 and my_coupon.coupon.amount <= prod_total)):
             available.append({
                 'id': my_coupon.coupon_id,
                 'type': my_coupon.coupon.type,
@@ -140,6 +146,7 @@ def confirm(request):
                 'condition': my_coupon.coupon.condition,
                 'min_data': my_coupon.coupon.min_data,
                 'max_data': my_coupon.coupon.max_data,
+                'choose': False,
             })
         else:
             unavailable.append({
@@ -161,12 +168,10 @@ def confirm(request):
         discounted_coupons = my_coupons.filter(coupon_id=coupon_id).first()
         if not discounted_coupons and coupon_id not in [x['id'] for x in available]:
             raise ValidateException().add_message('error:error', 'Params Error!')
-
+        for x in coupon["available"]:
+            if x['id'] == coupon_id:
+                x['choose'] = True
         discounted_price = discounted_coupons.coupon.amount
-
-    # 最终计算
-    count = sum([x["count"] for x in prod_items])
-    prod_total = Decimal(sum([x["count"]*x["price"] for x in prod_items])).quantize(Decimal("0.00"))
 
     # 将预定确认订单存缓存，方便确认订单接口直接获取
     order_uuid = 'ORDER_{}'.format(uuid.uuid1())
@@ -200,4 +205,3 @@ def confirm(request):
         'order_uuid': order_uuid
     }
     return Response(data)
-
