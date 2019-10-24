@@ -135,9 +135,9 @@ def confirm(request):
     available, unavailable = [], []
     for my_coupon in my_coupons:
         if my_coupon.coupon.min_data <= now_date < my_coupon.coupon.max_data and \
-                ((my_coupon.coupon.type == 2 and my_coupon.coupon.commodity.id in prod_id_list and
-                  my_coupon.coupon.amount <=
-                  sum([x["count"] * x["price"] for x in prod_items if x['prodId'] == my_coupon.coupon.commodity.id])) or
+                ((my_coupon.coupon.type == 2 and my_coupon.coupon.commodity.get().id in prod_id_list and
+                  my_coupon.coupon.amount <= sum([x["count"] * x["price"] for x in prod_items
+                                                  if x['prodId'] == my_coupon.coupon.commodity.get().id])) or
                  (my_coupon.coupon.type == 1 and my_coupon.coupon.amount <= prod_total)):
             available.append({
                 'id': my_coupon.coupon_id,
