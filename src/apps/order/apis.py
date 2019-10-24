@@ -127,7 +127,7 @@ def confirm(request):
 
     # TODO 优惠券
     my_coupons = MyCoupon.objects.filter(user_id=user, used=False, delete_status=0)
-    now_date = datetime.now()
+    now_date = datetime.now().date()
     prod_id_list = [x['prodId'] for x in prod_items]
     available, unavailable = [], []
     for my_coupon in my_coupons:
