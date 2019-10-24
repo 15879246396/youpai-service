@@ -169,8 +169,8 @@ def set_default_addr(request):
     if not addr:
         raise ValidateException().add_message('error:error', 'Addr Id Error!')
     with transaction.atomic():
-        addr.update(default=True)
         ShippingAddr.objects.filter(delete_status=0, user_id=user, default=True).update(default=False)
+        addr.update(default=True)
         return Response("success")
 
 
