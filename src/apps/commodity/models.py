@@ -24,8 +24,8 @@ class Coupon(GmtCreateModifiedTimeMixin, DeleteStatusMixin):
     type = models.IntegerField(verbose_name="优惠类型", choices=[(1, '全场通用'), (2, '指定商品可用')], default=1)
     amount = models.DecimalField(verbose_name="优惠金额", max_digits=15, decimal_places=0)
     condition = models.DecimalField(verbose_name="需满金额", max_digits=15, decimal_places=0)
-    min_data = models.DateTimeField(verbose_name='有效期（后）')
-    max_data = models.DateTimeField(verbose_name='有效期（前）')
+    min_data = models.DateField(verbose_name='有效期（后）')
+    max_data = models.DateField(verbose_name='有效期（前）')
 
     objects = models.Manager()
 
