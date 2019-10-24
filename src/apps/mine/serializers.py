@@ -53,9 +53,9 @@ class AreaSerializer(serializers.ModelSerializer):
 
 
 class ShippingAddrSerializer(serializers.ModelSerializer):
-    province = serializers.CharField(source='province.name', read_only=True)
-    city = serializers.CharField(source='city.name', read_only=True)
-    area = serializers.CharField(source='area.name', read_only=True)
+    province = AreaSerializer()
+    city = AreaSerializer()
+    area = AreaSerializer()
 
     class Meta:
         model = ShippingAddr

@@ -115,7 +115,7 @@ class ShoppingAddrView(APIView):
         return Response(data)
 
     @common_api
-    def post(self, request):
+    def put(self, request):
         update_data = request.data
         addr_id = update_data.pop('id')
         if not all((addr_id, update_data)):
@@ -128,7 +128,7 @@ class ShoppingAddrView(APIView):
             return Response(data)
 
     @common_api
-    def put(self, request):
+    def post(self, request):
         put_data = request.data
         user = request.auth['user_id']
         addr = ShippingAddr.objects.filter(delete_status=0, user_id=user)
