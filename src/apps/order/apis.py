@@ -53,7 +53,7 @@ def confirm(request):
             "name": commodity.name,
             "pic": pic,
             "specification": specification_name,
-            "price": "%.2f" % price,
+            "price": price.quantize(Decimal("0.00")),
             "count": order_item["prodCount"],
         }
         prod_items.append(prod)
@@ -81,7 +81,7 @@ def confirm(request):
                 "name": commodity.name,
                 "pic": pic,
                 "specification": specification_name,
-                "price": "%.2f" % price,
+                "price": price.quantize(Decimal("0.00")),
                 "count": item["prodCount"],
             }
             prod_items.append(prod)
