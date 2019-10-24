@@ -112,7 +112,7 @@ class ShoppingAddrView(APIView):
         addr_id = request.query_params.get('id')
         user = request.auth['user_id']
         if addr_id:
-            addr = ShippingAddr.objects.filter(delete_status=0, user_id=user, id=addr_id)
+            addr = ShippingAddr.objects.filter(delete_status=0, user_id=user, id=addr_id).first()
             data = ShippingAddrSerializer(addr).data
         else:
             addr = ShippingAddr.objects.filter(delete_status=0, user_id=user)
