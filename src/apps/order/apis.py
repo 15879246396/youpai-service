@@ -131,7 +131,7 @@ def confirm(request):
     prod_id_list = [x['prodId'] for x in prod_items]
     available, unavailable = [], []
     for my_coupon in my_coupons:
-        if my_coupon.coupon.min_data < now_date < my_coupon.coupon.max_data and \
+        if my_coupon.coupon.min_data <= now_date < my_coupon.coupon.max_data and \
                 (my_coupon.coupon.type == 1 or my_coupon.coupon_id in prod_id_list):
             available.append({
                 'id': my_coupon.coupon_id,
