@@ -129,13 +129,14 @@ class ShoppingAddrView(APIView):
 
     @common_api
     def post(self, request):
-        put_data = request.data
+        post_data = request.data
         user = request.auth['user_id']
         addr = ShippingAddr.objects.filter(delete_status=0, user_id=user)
         if not addr:
-            put_data['default'] = True
+            post_data['default'] = True
+        post_data['user_id'] = user
         with transaction.atomic():
-            addr = ShippingAddr.objects.create(**put_data)
+            addr = ShippingAddr.objects.create(**post_data)
             data = ShippingAddrSerializer(addr).data
             return Response(data)
 
