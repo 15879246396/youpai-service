@@ -94,8 +94,8 @@ def confirm(request):
         addr = None
     else:
         shipping_addr = ShippingAddr.objects.filter(delete_status=0, user_id=user, default=True).first()
-        addr = shipping_addr.province_id if shipping_addr else None
-    province_id = ShippingAddrSerializer(shipping_addr).data if shipping_addr else None
+        addr = ShippingAddrSerializer(shipping_addr).data if shipping_addr else None
+    province_id = shipping_addr.province_id if shipping_addr else None
 
     # TODO 运费计算
     freight = Decimal()
