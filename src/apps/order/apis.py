@@ -53,7 +53,7 @@ def confirm(request):
             "name": commodity.name,
             "pic": pic,
             "specification": specification_name,
-            "price": price.quantize(Decimal("0.00")),
+            "price": "%.2f" % price,
             "count": order_item["prodCount"],
         }
         prod_items.append(prod)
@@ -81,7 +81,7 @@ def confirm(request):
                 "name": commodity.name,
                 "pic": pic,
                 "specification": specification_name,
-                "price": price.quantize(Decimal("0.00")),
+                "price": "%.2f" % price,
                 "count": item["prodCount"],
             }
             prod_items.append(prod)
@@ -110,12 +110,12 @@ def confirm(request):
             else:
                 freight += freight_template.freight
         elif freight_template.charge_type == 1:
-            if item["count"] * item["price"] >= freight_template.amount:
+            if item["count"] * float(item["price"]) >= freight_template.amount:
                 continue
             else:
                 freight += freight_template.freight
         elif freight_template.charge_type == 2:
-            if item["count"] >= freight_template.piece or item["count"] * item["price"] >= freight_template.amount:
+            if item["count"] >= freight_template.piece or item["count"] * float(item["price"]) >= freight_template.amount:
                 continue
             else:
                 freight += freight_template.freight
@@ -126,7 +126,7 @@ def confirm(request):
                 freight += freight_template.freight
     # 最终计算
     count = sum([x["count"] for x in prod_items])
-    prod_total = Decimal(sum([x["count"] * x["price"] for x in prod_items])).quantize(Decimal("0.00"))
+    prod_total = Decimal(sum([x["count"] * float(x["price"]) for x in prod_items]))
 
     # TODO 优惠券
     my_coupons = MyCoupon.objects.filter(user_id=user, used=False, delete_status=0)
@@ -136,9 +136,9 @@ def confirm(request):
     for my_coupon in my_coupons:
         if my_coupon.coupon.min_data <= now_date < my_coupon.coupon.max_data and \
                 ((my_coupon.coupon.type == 2 and my_coupon.coupon.commodity.get().id in prod_id_list and
-                  my_coupon.coupon.amount <= sum([x["count"] * x["price"] for x in prod_items
-                                                  if x['prodId'] == my_coupon.coupon.commodity.get().id])) or
-                 (my_coupon.coupon.type == 1 and my_coupon.coupon.amount <= prod_total)):
+                  my_coupon.coupon.condition <= sum([x["count"] * float(x["price"]) for x in prod_items
+                                                     if x['prodId'] == my_coupon.coupon.commodity.get().id])) or
+                 (my_coupon.coupon.type == 1 and my_coupon.coupon.condition <= prod_total)):
             available.append({
                 'id': my_coupon.coupon_id,
                 'type': my_coupon.coupon.type,
@@ -197,7 +197,7 @@ def confirm(request):
         "addr": addr,
         'prodItems': prod_items,
         "count": count,
-        "prod_total": prod_total,
+        "prod_total": "%.2f" % prod_total,
         "coupon": coupon,
         "freight": "%.2f" % freight,
         "discounted_price": "%.2f" % discounted_price,
