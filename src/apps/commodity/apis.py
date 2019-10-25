@@ -1,3 +1,6 @@
+from datetime import datetime
+
+from django.db.models import Q
 from rest_framework import filters
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
@@ -10,8 +13,8 @@ from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
 from account.permissions import IsAuthenticatedWechat
 from base.exceptions import ValidateException
-from commodity.models import Commodity, Category, CommodityCollect
-from commodity.serializers import CommodityListSerializer, CategorySerializer, CommoditySerializer
+from commodity.models import Commodity, Category, CommodityCollect, Coupon
+from commodity.serializers import CommodityListSerializer, CategorySerializer, CommoditySerializer, CouponSerializer
 from common.decorator import common_api
 
 
@@ -105,3 +108,22 @@ def commodity_collect(request):
         obj.delete_status = not obj.delete_status
         obj.save()
     return Response(not obj.delete_status)
+
+
+class CouponView(APIView):
+    """优惠券"""
+    permission_classes = (IsAuthenticatedWechat,)
+    authentication_classes = (JSONWebTokenAuthentication, SessionAuthentication)
+
+    @common_api
+    def get(self, request):
+        prod_id = request.query_params.get('prodId')
+        now_date = datetime.now().date()
+        if prod_id:
+            prod_coupon_id = Commodity.objects.get(id=prod_id).coupon_id
+            coupons = Coupon.objects.filter(Q(type=1) | Q(id=prod_coupon_id),
+                                            min_data__lte=now_date, max_data__gt=now_date)
+        else:
+            coupons = Coupon.objects.filter(min_data__lte=now_date, max_data__gt=now_date)
+        data = CouponSerializer(coupons, many=True, context={"request": request}).data
+        return data

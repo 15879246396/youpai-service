@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
+from datetime import datetime
+
 from rest_framework import serializers
 
-from commodity.models import Commodity, FreightTemplate, Category, CommodityCollect
+from commodity.models import Commodity, FreightTemplate, Category, CommodityCollect, Coupon
+from mine.models import MyCoupon
 
 
 class FreightTemplateSerializer(serializers.ModelSerializer):
@@ -61,3 +64,29 @@ class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = ['id', 'name', 'pic', ]
+
+
+class CouponSerializer(serializers.ModelSerializer):
+    status = serializers.SerializerMethodField()
+    valid_days = serializers.SerializerMethodField()
+
+    def get_valid_days(self, obj):
+        max_date = obj.max_date
+        now_date = datetime.now().date()
+        valid_days = (max_date - now_date).days
+        return valid_days
+
+    def get_status(self, obj):
+        if not self.context:
+            return '未领取'
+        auth = self.context["request"].auth
+        if auth:
+            my_coupon = MyCoupon.objects.filter(user_id=auth['user_id'], coupon_id=obj.id).first()
+            if my_coupon:
+                status = '已使用' if my_coupon.used else '已领取'
+                return status
+        return '未领取'
+
+    class Meta:
+        model = Coupon
+        fields = ['id', 'type', 'amount', 'condition', 'min_data', 'max_data', 'valid_days', 'status']

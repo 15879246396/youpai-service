@@ -14,4 +14,6 @@ urlpatterns = [
     path('category/', apis.CategoryView.as_view(), name="category_list"),
     path('commodity/', apis.CommodityView.as_view(), name="commodity"),
     path('collect/', apis.commodity_collect, name="commodity_collect"),
+    path('coupon/', apis.CouponView.as_view(), name="commodity"),
+
 ]
