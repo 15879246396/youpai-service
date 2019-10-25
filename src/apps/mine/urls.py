@@ -13,6 +13,7 @@ urlpatterns = [
     path('addr/', apis.ShoppingAddrView.as_view(), name="addr"),
     path('defaultAddr/', apis.set_default_addr, name="set_default_addr"),
     path('area/', apis.get_area, name="get_area"),
+    path('receive/', apis.receive_coupon, name="receive_coupon"),
 ]
 
 

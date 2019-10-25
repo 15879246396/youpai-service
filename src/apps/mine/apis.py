@@ -8,10 +8,10 @@ from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
 from account.permissions import IsAuthenticatedWechat
 from base.exceptions import ValidateException
-from commodity.models import CommodityCollect, Commodity
-from commodity.serializers import CommodityListSerializer
+from commodity.models import CommodityCollect, Commodity, Coupon
+from commodity.serializers import CommodityListSerializer, CouponSerializer
 from common.decorator import common_api
-from mine.models import ShoppingCart, ShippingAddr, Area
+from mine.models import ShoppingCart, ShippingAddr, Area, MyCoupon
 from mine.serializers import ShoppingCartSerializer, ShippingAddrSerializer, AreaSerializer
 
 
@@ -189,3 +189,23 @@ def get_area(request):
     areas = Area.objects.filter(parent_id=area_id)
     data = AreaSerializer(areas, many=True).data
     return Response(data)
+
+
+@api_view(['POST'])
+@permission_classes((IsAuthenticatedWechat, ))
+@authentication_classes((JSONWebTokenAuthentication, SessionAuthentication))
+@common_api
+def receive_coupon(request):
+    """领取优惠券"""
+    coupon_id = request.get('id')
+    if not coupon_id:
+        raise ValidateException().add_message('error:error', 'Incomplete Params!')
+    coupon = Coupon.objects.filter(id=coupon_id).first()
+    if not coupon:
+        raise ValidateException().add_message('error:error', 'Incomplete Params!')
+    user = request.auth['user_id']
+    MyCoupon.objects.get_or_create(user_id=user, coupon_id=coupon_id)
+    data = CouponSerializer(coupon, context={"request": request}).data
+    return Response(data)
+
+
