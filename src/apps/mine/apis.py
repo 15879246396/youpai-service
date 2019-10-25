@@ -197,7 +197,7 @@ def get_area(request):
 @common_api
 def receive_coupon(request):
     """领取优惠券"""
-    coupon_id = request.get('id')
+    coupon_id = request.data.get('id')
     if not coupon_id:
         raise ValidateException().add_message('error:error', 'Incomplete Params!')
     coupon = Coupon.objects.filter(id=coupon_id).first()
