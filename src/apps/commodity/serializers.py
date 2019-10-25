@@ -71,7 +71,7 @@ class CouponSerializer(serializers.ModelSerializer):
     valid_days = serializers.SerializerMethodField()
 
     def get_valid_days(self, obj):
-        max_date = obj.max_date
+        max_date = obj.max_data
         now_date = datetime.now().date()
         valid_days = (max_date - now_date).days
         return valid_days
