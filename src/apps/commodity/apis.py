@@ -126,4 +126,4 @@ class CouponView(APIView):
         else:
             coupons = Coupon.objects.filter(min_data__lte=now_date, max_data__gt=now_date)
         data = CouponSerializer(coupons, many=True, context={"request": request}).data
-        return data
+        return Response(data)
