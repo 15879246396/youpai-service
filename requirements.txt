@@ -1,5 +1,5 @@
 pip==19.0.3
-Django==2.2.4
+Django==2.2.27
 PyJWT==1.7.1
 PyMySQL==0.9.3
 certifi==2019.6.16
